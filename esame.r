@@ -423,7 +423,7 @@ summary(altezza)
 
 peso <- c(75, 63, 70, 71, 68, 68, 64, 60, 86, 91)
 summary(peso)
-
+# test
 
 
 
