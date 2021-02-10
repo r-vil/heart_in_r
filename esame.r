@@ -3,7 +3,7 @@
 # 1.Caricare il dataset heart.csv e analizzarne dettagliatamente la struttura.
 
 
-dataset <- read.csv("C:/Users/BinodComini/Desktop/R/esame/heart.csv", header = TRUE, stringsAsFactors = FALSE)
+dataset <- read.csv("heart.csv", header = TRUE, stringsAsFactors = FALSE)
 str (dataset)
 View(dataset)
 
