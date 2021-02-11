@@ -1,6 +1,20 @@
+# COMINI VILLANUEVA
+# ESAME R
 
+install.packages("tidyverse")
+library(tidyverse)
 
-# 1.Caricare il dataset heart.csv e analizzarne dettagliatamente la struttura.
+'1.Caricare il datasetheart.csve analizzarne dettagliatamente la struttura. 
+2.Trasformare i dati in modo che siano tecnicamente corretti. 
+3.Rinominare le colonne in maniera appropriata e descrivere il tipodi ogni attributo 
+(nominale, ordinale, di intervallo o di rapporto). 
+4.Rinominare i livellidei fattori in maniera appropriata, se necessario. 
+5.Descrivere brevemente gli attributi.
+1.1.Controllare se sono presenC valori NAe, nel caso, rimuoverli. 
+2.1.Rimuovere le colonne ritenute non necessarie.'
+
+# es 1
+# Caricare il dataset heart.csv e analizzarne dettagliatamente la struttura.
 
 
 dataset <- read.csv("C:/Users/BinodComini/Desktop/R/esame/heart.csv", header = TRUE, stringsAsFactors = FALSE)
@@ -8,9 +22,9 @@ str (dataset)
 View(dataset)
 
 
-
-
-# 1.1 Controllare se sono presenC valori NA e, nel caso, rimuoverli.
+# es 1.1
+# Controllare se sono presenC valori NA e, nel caso, rimuoverli.
+# Questo ciclo if fatto sopra mi stampa a video se ci sono o meno dei valori NULL nel dataset
 
 
 controllo_isn <- function(dataset)
@@ -26,77 +40,44 @@ controllo_isn <- function(dataset)
     print("nel dataset non sono presenti valori NULL!")
   }
 }
-# questo ciclo if fatto sopra mi stampa a video se ci sono o meno dei valori NULL nel dataset
-
-
-
-
 
 controllo_isn(dataset) 
-
-
-# 2.1 Rimuovere le colonne ritenute non necessarie.
-
-
-
 dataset <- na.omit(dataset) 
 
 
+# es 2.1 
+# Rimuovere le colonne ritenute non necessarie.
+# Elimino la colonna X perchè da me ritenuta inutile
 
-
-# elimino anche la colonna X perchÃ¨ da me ritenuta inutile
 dataset <- subset(dataset, select = - x)
 
 
 
 
-
+# es 3
 # Rinominare le colonne in maniera appropriata e descrivere, tramite un commento
 # testuale, il tipo di ogni attributo (nominale, ordinale, di intervallo o di rapporto).
 
 
-
-
-# stampo inizialmente il mio dataset per controllare se vanno rinominate
+# Stampo inizialmente il mio dataset per controllare se vanno rinominate
 # le colonne in modo appropriato
 str(dataset)
 
 
-
-
-# 3.Rinominare le colonne in maniera appropriata e descrivere il tipo di ogni attributo
-# (nominale, ordinale, di intervallo o di rapporto).
-
-
-
+# Quindi avendo trovato delle incongruenze con i nomi assegnati alle colonne le 
+# ho rinominate secondo me nel modo più opportuno
 
 names(dataset)[names(dataset) == "cp"] <- "chest_pain"
-
-
 names(dataset)[names(dataset) == "trestbps"] <- "rest_bp"
-
-
 names(dataset)[names(dataset) == "chol"] <- "cholesterol"
-
-
 names(dataset)[names(dataset) == "thalach"] <- "max_hr"
-
-
 names(dataset)[names(dataset) == "exang"] <- "exercise_angina"
-
-
 names(dataset)[names(dataset) == "thal"] <- "thalassemia"
-
-
 names(dataset)[names(dataset) == "target"] <- "heart_disease"
-
-
 names(dataset)[names(dataset) == "ca"] <- "n_vessels"
-
-
 names(dataset)[names(dataset) == "restecg"] <- "rest_ecg"
 
-
+# E poi ho assegnato ad ogni attributo il suo tipo
 
 # $ age            : int  63 37 41 56 57 57 56 44 52 57 ...           ORDINALE
 # $ sex            : chr  "1" "1" "0" "1" ...                         NOMINALE
@@ -116,47 +97,57 @@ names(dataset)[names(dataset) == "restecg"] <- "rest_ecg"
 
 
 
+# es 2
+# Trasformare i dati in modo che siano tecnicamente corretti.
+# Ho trasformato i dati secondo me non capibili in una chiave più 
+# leggibile 
 
-# 2.Trasformare i dati in modo che siano tecnicamente corretti.
-
-
-
-#sex
+# Ho trasformato, nella colonna sex, i semplici valori "0" e "1"  in 
+# "F" per femmina e in "M" per maschio e poi creato un fattore 
 dataset$sex[(dataset$sex == "0")] <- "F"
 dataset$sex[(dataset$sex == "1")] <- "M" 
 dataset$sex <- as.factor(dataset$sex)
 
-
-# chest pain
+ 
+# Ho trasformato il tipo di dato per la colonna chest pain 
+# da int a factor quindi diviso in più livelli (0 - 1 - 2 - 3)
 dataset$chest_pain <- as.factor(dataset$chest_pain)
 
 
-# colesterolo
+# Per la colonna cholesterol ho trasformato in un primo luogo tutti i valori
+# "undefined" nella mediana dei valori di tutta la mia colonna
+# e in secondo luogo ho traformato il tipo di dato da char a integer
 dataset$cholesterol[(dataset$cholesterol == "undefined")] <- median(dataset$cholesterol)
 dataset$cholesterol <- as.integer(dataset$cholesterol)
 
 
-#fbs glicemia
+# Ho trasformato il tipo di dato per la colonna fbs 
+# da int a factor quindi diviso in più livelli (1 - 0)
 dataset$fbs <- as.factor(dataset$fbs)
 
 
-#rest electrocardiogramma
+# Ho trasformato il tipo di dato per la colonna rest_ecg 
+# da int a factor quindi diviso in più livelli (0 - 1 - 2)
 dataset$rest_ecg <- as.factor(dataset$rest_ecg)
 
 
-#ex angina
+# Ho trasformato il tipo di dato per la colonna exercise_angina 
+# da int a factor quindi diviso in più livelli (1 - 0)
 dataset$exercise_angina <- as.factor(dataset$exercise_angina)
 
 
-# slope
+# Ho trasformato il tipo di dato per la colonna slope 
+# da num a factor quindi diviso in più livelli (0 - 1 - 2)
 dataset$slope <- as.factor(dataset$slope)
 
 
-# thalassemia
+# Ho trasformato il tipo di dato per la colonna thalassemia 
+# da int a factor quindi diviso in più livelli (0 - 1 - 2 - 3)
 dataset$thalassemia <- as.factor(dataset$thalassemia)
 
 
-# heart disease
+# Ho trasformato il tipo di dato per la colonna heart_disease 
+# da int a factor quindi diviso in più livelli (1 - 0)
 dataset$heart_disease <- as.factor(dataset$heart_disease)
 
 
