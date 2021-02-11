@@ -1,8 +1,8 @@
 # COMINI VILLANUEVA
 # ESAME R
 
-install.packages("tidyverse")
-library(tidyverse)
+# install.packages("tidyverse")
+# library(tidyverse)
 
 '1.Caricare il datasetheart.csve analizzarne dettagliatamente la struttura. 
 2.Trasformare i dati in modo che siano tecnicamente corretti. 
@@ -17,7 +17,7 @@ library(tidyverse)
 # Caricare il dataset heart.csv e analizzarne dettagliatamente la struttura.
 
 
-dataset <- read.csv("C:/Users/BinodComini/Desktop/R/esame/heart.csv", header = TRUE, stringsAsFactors = FALSE)
+dataset <- read.csv("heart.csv", header = TRUE, stringsAsFactors = FALSE)
 str (dataset)
 View(dataset)
 
@@ -410,13 +410,31 @@ qqline(reg0$residuals)
 
 
 
-dat <- read.csv("C:/Users/BinodComini/Desktop/R/esame/osservazioni.csv", header = TRUE, stringsAsFactors = FALSE)
+dat <- read.csv("osservazioni.csv", header = TRUE, stringsAsFactors = FALSE)
 str (dat)
 View(dat)
 
 
 
-# 1. Applicare un modello di Machine Learning a scelta, misurandone l’accuratezza sul test set. 
+# 1. Applicare un modello di Machine Learning a scelta, misurandone l'accuratezza sul test set.
+# seed = set.seed(2021)
+# training_index <- createDataPartition(dataset$age, p = .80, list = FALSE)
+# 
+# training_set <- dataset[training_index, ]
+# nrow(training_set)
+# # use the remaining 20% of the data for test
+# test_set <- dataset[-training_index, ]
+# nrow(test_set)
+
+control <- trainControl(method = "cv", number = 10, seed = seed)
+metric <- "Accuracy"
+
+## kNN
+fit_knn <- train(dataset$age ~ dataset$max_hr, data = training_set, metric = metric, trControl = control, method = "knn")
+## MLP
+fit_mlp <- train(dataset$age ~ dataset$max_hr, data = training_set, metric = metric, trControl = control, method = "mlp")
+
+
 # 2. Descrivere brevemente il funzionamento del modello scelto.
 
 
