@@ -295,10 +295,10 @@ View(dataset)
 
 
 # 1. Analizzare la relazione tra due variabili del dataset attraverso la regressione lineare semplice e determinare: 
-# â€¢ il grafico del modello; 
-# â€¢ il coefficiente angolare e lâ€™intercetta (interpretabile) della retta di regressione; 
-# â€¢ il tipo di relazione tramite re la bontÃ  del modello tramite R!; 
-# â€¢ lâ€™analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
+# â?¢ il grafico del modello; 
+# â?¢ il coefficiente angolare e lâ??intercetta (interpretabile) della retta di regressione; 
+# â?¢ il tipo di relazione tramite re la bontÃ  del modello tramite R!; 
+# â?¢ lâ??analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
 
 summary(dataset$age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -314,14 +314,12 @@ summary(dataset$rest_bp)
 plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
 
 # invertire l'ordine!
-
-
 reg <- lm(dataset$rest_bp ~ dataset$age)
 
 # per disegnare la retta di regressione lineare
 abline (reg, col = "red")
 
-# reg0 --> abbiamo visto che tra age e rest_bp non c'è correlazione
+# reg0 --> abbiamo visto che tra age e rest_bp non c'Ã¨ correlazione
 # Call:
 #   lm(formula = dataset$rest_bp ~ dataset$age)
 # 
@@ -344,7 +342,6 @@ summary(dataset$max_hr)
 plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
 # invertire l'ordine!
-
 reg0 <- lm(max_hr ~ age, data = dataset)
 
 # per disegnare la retta di regressione lineare
@@ -373,7 +370,7 @@ summary(reg0)
 # (Intercept) 203.6911     7.6023  26.793  < 2e-16 ***
 #   dataset$age  -0.9949     0.1377  -7.226 4.27e-12 ***
 #   ---
-#   Signif. codes:  0 â€˜***â€™ 0.001 â€˜**â€™ 0.01 â€˜*â€™ 0.05 â€˜.â€™ 0.1 â€˜ â€™ 1
+#   Signif. codes:  0 â??***â?? 0.001 â??**â?? 0.01 â??*â?? 0.05 â??.â?? 0.1 â?? â?? 1
 # 
 # Residual standard error: 21.16 on 295 degrees of freedom
 # Multiple R-squared:  0.1504,	Adjusted R-squared:  0.1475 
@@ -418,61 +415,108 @@ str (dat)
 View(dat)
 
 
-predict(reg0, dat)
+predict(reg0, dat, interval = "confidence")
+'
+         fit       lwr      upr
+1  113.17265 102.98835 123.3569
+2  128.09188 121.78282 134.4009
+3  120.13495 111.78158 128.4883
+4  172.84956 166.03791 179.6612
+5  137.04341 132.88143 141.2054
+6  157.93033 154.59214 161.2685
+7  103.22649  90.39313 116.0599
+8  155.94110 152.95103 158.9312
+9   99.24803  85.34842 113.1476
+10  92.28572  76.51432 108.0571
+11 160.91418 156.97083 164.8575
+12 117.15111 108.01637 126.2858
+13 163.89803 159.28514 168.5109
+14 116.15649 106.76010 125.5529
+15  88.30726  71.46370 105.1508
+16 129.08649 123.02691 135.1461
+17 174.83880 167.51780 182.1598
+18 135.05418 130.44011 139.6683
+19 153.95187 151.24537 156.6584
+20 123.11880 115.54012 130.6975
+'
 
-# 1         2         3         4         5         6         7         8         9        10        11        12        13 
-# 113.17265 128.09188 120.13495 172.84956 137.04341 157.93033 103.22649 155.94110  99.24803  92.28572 160.91418 117.15111 163.89803 
-# 14        15        16        17        18        19        20 
-# 116.15649  88.30726 129.08649 174.83880 135.05418 153.95187 123.11880 
-
-
-# è possibile ottenere gli IC per il valore medio predetto predict(reg, df_pred, interval = "confidence") 
-predict(reg0, dat, interval = "confidence") 
-
-# fit       lwr      upr
-# 1  113.17265 102.98835 123.3569
-# 2  128.09188 121.78282 134.4009
-# 3  120.13495 111.78158 128.4883
-# 4  172.84956 166.03791 179.6612
-# 5  137.04341 132.88143 141.2054
-# 6  157.93033 154.59214 161.2685
-# 7  103.22649  90.39313 116.0599
-# 8  155.94110 152.95103 158.9312
-# 9   99.24803  85.34842 113.1476
-# 10  92.28572  76.51432 108.0571
-# 11 160.91418 156.97083 164.8575
-# 12 117.15111 108.01637 126.2858
-# 13 163.89803 159.28514 168.5109
-# 14 116.15649 106.76010 125.5529
-# 15  88.30726  71.46370 105.1508
-# 16 129.08649 123.02691 135.1461
-# 17 174.83880 167.51780 182.1598
-# 18 135.05418 130.44011 139.6683
-# 19 153.95187 151.24537 156.6584
-# 20 123.11880 115.54012 130.6975
-
-
-
-
-
+install.packages("caret")
+#install.packages("caret", dependencies = c("Depends", "Suggests"))
+library(caret)
 
 # 1. Applicare un modello di Machine Learning a scelta, misurandone l'accuratezza sul test set.
-# seed = set.seed(2021)
-# training_index <- createDataPartition(dataset$age, p = .80, list = FALSE)
+
+
+# kNN
+fit_knn <- train(age ~ ., data = dataset, method = "knn")
+fit_knn
+
+# k-Nearest Neighbors 
 # 
-# training_set <- dataset[training_index, ]
-# nrow(training_set)
-# # use the remaining 20% of the data for test
-# test_set <- dataset[-training_index, ]
-# nrow(test_set)
+# 297 samples
+# 13 predictor
+# 
+# No pre-processing
+# Resampling: Bootstrapped (25 reps) 
+# Summary of sample sizes: 297, 297, 297, 297, 297, 297, ... 
+# Resampling results across tuning parameters:
+#   
+#   k  RMSE      Rsquared    MAE     
+# 5  9.367058  0.06795630  7.453586
+# 7  8.997625  0.08339619  7.224015
+# 9  8.816922  0.09077965  7.102163
+# 
+# RMSE was used to select the optimal model using the smallest value.
+# The final value used for the model was k = 9.
 
-control <- trainControl(method = "cv", number = 10, seed = seed)
-metric <- "Accuracy"
-
-## kNN
-fit_knn <- train(dataset$age ~ dataset$max_hr, data = training_set, metric = metric, trControl = control, method = "knn")
 ## MLP
-fit_mlp <- train(dataset$age ~ dataset$max_hr, data = training_set, metric = metric, trControl = control, method = "mlp")
+fit_mlp <- train(age ~ ., data = dataset, method = "mlp")
+fit_mlp
+ 
+# Multi-Layer Perceptron 
+# 
+# 297 samples
+# 13 predictor
+# 
+# No pre-processing
+# Resampling: Bootstrapped (25 reps) 
+# Summary of sample sizes: 297, 297, 297, 297, 297, 297, ... 
+# Resampling results across tuning parameters:
+#   
+#   size  RMSE      Rsquared     MAE      
+# 1     23.94262  0.004616473  22.595610
+# 3     11.74443  0.013065360   9.948754
+# 5     11.97872  0.010286422  10.163292
+# 
+# RMSE was used to select the optimal model using the smallest value.
+# The final value used for the model was size = 3.
+
+
+results <- resamples(list( knn = fit_knn, mlp = fit_mlp))
+summary(results)
+ 
+# Call:
+#   summary.resamples(object = results)
+# 
+# Models: knn, mlp 
+# Number of resamples: 25 
+# 
+# MAE 
+# Min.  1st Qu.   Median     Mean  3rd Qu.      Max. NA's
+# knn 6.491155 6.744449 7.224933 7.102163 7.444848  7.817221    0
+# mlp 6.944955 7.374180 7.989258 9.948754 8.416975 55.356995    0
+# 
+# RMSE 
+#         Min.  1st Qu.   Median      Mean   3rd Qu.      Max. NA's
+# knn 8.065696 8.434172 8.698588  8.816922  9.201315  9.568582    0
+# mlp 8.553515 9.099595 9.712400 11.744430 10.367556 56.111010    0
+# 
+# Rsquared 
+# Min.     1st Qu.     Median       Mean    3rd Qu.       Max. NA's
+# knn 0.005982459 0.048187056 0.08090164 0.09077965 0.11792553 0.22110454    0
+# mlp 0.002614607 0.009349402 0.01608420 0.01306536 0.01829074 0.02049728   22
+
+dotplot(results)
 
 
 # 2. Descrivere brevemente il funzionamento del modello scelto.
