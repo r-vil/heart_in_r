@@ -314,12 +314,14 @@ summary(dataset$rest_bp)
 plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
 
 # invertire l'ordine!
-reg0 <- lm(dataset$rest_bp ~ dataset$age)
+
+
+reg <- lm(dataset$rest_bp ~ dataset$age)
 
 # per disegnare la retta di regressione lineare
-abline (reg0, col = "red")
+abline (reg, col = "red")
 
-# reg0 --> abbiamo visto che tra age e rest_bp non c'Ã¨ correlazione
+# reg0 --> abbiamo visto che tra age e rest_bp non c'è correlazione
 # Call:
 #   lm(formula = dataset$rest_bp ~ dataset$age)
 # 
@@ -342,7 +344,8 @@ summary(dataset$max_hr)
 plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
 # invertire l'ordine!
-reg0 <- lm(dataset$max_hr ~ dataset$age)
+
+reg0 <- lm(max_hr ~ age, data = dataset)
 
 # per disegnare la retta di regressione lineare
 abline (reg0, col = "red")
@@ -413,6 +416,43 @@ qqline(reg0$residuals)
 dat <- read.csv("osservazioni.csv", header = TRUE, stringsAsFactors = FALSE)
 str (dat)
 View(dat)
+
+
+predict(reg0, dat)
+
+# 1         2         3         4         5         6         7         8         9        10        11        12        13 
+# 113.17265 128.09188 120.13495 172.84956 137.04341 157.93033 103.22649 155.94110  99.24803  92.28572 160.91418 117.15111 163.89803 
+# 14        15        16        17        18        19        20 
+# 116.15649  88.30726 129.08649 174.83880 135.05418 153.95187 123.11880 
+
+
+# è possibile ottenere gli IC per il valore medio predetto predict(reg, df_pred, interval = "confidence") 
+predict(reg0, dat, interval = "confidence") 
+
+# fit       lwr      upr
+# 1  113.17265 102.98835 123.3569
+# 2  128.09188 121.78282 134.4009
+# 3  120.13495 111.78158 128.4883
+# 4  172.84956 166.03791 179.6612
+# 5  137.04341 132.88143 141.2054
+# 6  157.93033 154.59214 161.2685
+# 7  103.22649  90.39313 116.0599
+# 8  155.94110 152.95103 158.9312
+# 9   99.24803  85.34842 113.1476
+# 10  92.28572  76.51432 108.0571
+# 11 160.91418 156.97083 164.8575
+# 12 117.15111 108.01637 126.2858
+# 13 163.89803 159.28514 168.5109
+# 14 116.15649 106.76010 125.5529
+# 15  88.30726  71.46370 105.1508
+# 16 129.08649 123.02691 135.1461
+# 17 174.83880 167.51780 182.1598
+# 18 135.05418 130.44011 139.6683
+# 19 153.95187 151.24537 156.6584
+# 20 123.11880 115.54012 130.6975
+
+
+
 
 
 
