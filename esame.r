@@ -1,8 +1,10 @@
 # COMINI VILLANUEVA
 # ESAME R
 
-# install.packages("tidyverse")
-# library(tidyverse)
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("caret")
+library(caret)
 
 '1.Caricare il datasetheart.csve analizzarne dettagliatamente la struttura. 
 2.Trasformare i dati in modo che siano tecnicamente corretti. 
@@ -17,9 +19,9 @@
 # Caricare il dataset heart.csv e analizzarne dettagliatamente la struttura.
 
 
-dataset <- read.csv("C:/Users/BinodComini/Desktop/esame/heart_in_r/heart.csv", header = TRUE, stringsAsFactors = FALSE)
-str (dataset)
-View(dataset)
+dataset <- read.csv("heart.csv", header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
+dataset
+#View(dataset)
 
 
 # es 1.1
@@ -29,16 +31,7 @@ View(dataset)
 
 controllo_isn <- function(dataset)
 {
-  count_isn <- sum(is.na(dataset))
-  if (count_isn > 0 )
-  {
-    print("nel database sono presenti i valori NULL")
-    count_isn
-  }
-  else
-  {
-    print("nel dataset non sono presenti valori NULL!")
-  }
+  return(paste("c'è/ ci sono", sum(is.na(dataset)), "valore/i NA"))
 }
 
 controllo_isn(dataset) 
@@ -49,10 +42,8 @@ dataset <- na.omit(dataset)
 # Rimuovere le colonne ritenute non necessarie.
 # Elimino la colonna X perchè da me ritenuta inutile
 
+# dataset <- subset(dataset, select = - x)
 
-View(dataset)
-dataset <- subset(dataset, select = - x)
-View(dataset)
 
 
 
@@ -61,24 +52,37 @@ View(dataset)
 # testuale, il tipo di ogni attributo (nominale, ordinale, di intervallo o di rapporto).
 
 
-# Stampo inizialmente il mio dataset per controllare se ci sono colonne che vanno
-# rinominate in modo appropriato
-
+# Stampo inizialmente il mio dataset per controllare se vanno rinominate
+# le colonne in modo appropriato
 str(dataset)
 
 
 # Quindi avendo trovato delle incongruenze con i nomi assegnati alle colonne le 
-# ho rinominate secondo me nel modo più opportuno
+# ho rinominate secondo me nel modo più opportunoì
+dataset <- dataset %>% 
+  select(-one_of("x")) %>%
+  rename(
+    chest_pain = cp,
+    rest_bp = trestbps,
+    cholesterol = chol,
+    max_hr= thalach,
+    exercise_angina = exang,
+    thalessemia = thal,
+    heart_disease = target,
+    n_vessels = ca,
+    rest_ecg = restecg
+  )
 
-names(dataset)[names(dataset) == "cp"] <- "chest_pain"
-names(dataset)[names(dataset) == "trestbps"] <- "rest_bp"
-names(dataset)[names(dataset) == "chol"] <- "cholesterol"
-names(dataset)[names(dataset) == "thalach"] <- "max_hr"
-names(dataset)[names(dataset) == "exang"] <- "exercise_angina"
-names(dataset)[names(dataset) == "thal"] <- "thalassemia"
-names(dataset)[names(dataset) == "target"] <- "heart_disease"
-names(dataset)[names(dataset) == "ca"] <- "n_vessels"
-names(dataset)[names(dataset) == "restecg"] <- "rest_ecg"
+
+# names(dataset)[names(dataset) == "cp"] <- "chest_pain"
+# names(dataset)[names(dataset) == "trestbps"] <- "rest_bp"
+# names(dataset)[names(dataset) == "chol"] <- "cholesterol"
+# names(dataset)[names(dataset) == "thalach"] <- "max_hr"
+# names(dataset)[names(dataset) == "exang"] <- "exercise_angina"
+# names(dataset)[names(dataset) == "thal"] <- "thalassemia"
+# names(dataset)[names(dataset) == "target"] <- "heart_disease"
+# names(dataset)[names(dataset) == "ca"] <- "n_vessels"
+# names(dataset)[names(dataset) == "restecg"] <- "rest_ecg"
 
 # E poi ho assegnato ad ogni attributo il suo tipo
 
@@ -106,54 +110,70 @@ names(dataset)[names(dataset) == "restecg"] <- "rest_ecg"
 # leggibile 
 
 # Ho trasformato, nella colonna sex, i semplici valori "0" e "1"  in 
-# "F" per femmina e in "M" per maschio e poi ho creato un fattore 
-dataset$sex[(dataset$sex == "0")] <- "F"
-dataset$sex[(dataset$sex == "1")] <- "M" 
-dataset$sex <- as.factor(dataset$sex)
+# "F" per femmina e in "M" per maschio e poi creato un fattore 
+
+dataset <- dataset %>% 
+  mutate(
+    sex = ifelse(sex == "1", "M", "F"),
+    sex = as.factor(sex),
+    chest_pain = as.factor(chest_pain),
+    cholesterol = ifelse(cholesterol == "undefined", median(cholesterol), cholesterol),
+    cholesterol = as.integer(cholesterol),
+    fbs = as.factor(fbs),
+    rest_ecg = as.factor(rest_ecg),
+    exercise_angina = as.factor(exercise_angina),
+    slope = as.factor(slope),
+    thalassemia = as.factor(thalassemia),
+    heart_disease = as.factor(heart_disease)
+    )
+' 
+# dataset$sex[(dataset$sex == "0")] <- "F"
+# dataset$sex[(dataset$sex == "1")] <- "M" 
+# dataset$sex <- as.factor(dataset$sex)
 
  
-# Ho cambiato il tipo di dato per la colonna chest pain 
+# Ho trasformato il tipo di dato per la colonna chest pain 
 # da int a factor quindi diviso in più livelli (0 - 1 - 2 - 3)
 dataset$chest_pain <- as.factor(dataset$chest_pain)
 
 
-# Per la colonna cholesterol ho trasformato in primo luogo tutti i valori
+# Per la colonna cholesterol ho trasformato in un primo luogo tutti i valori
 # "undefined" nella mediana dei valori di tutta la mia colonna
 # e in secondo luogo ho traformato il tipo di dato da char a integer
 dataset$cholesterol[(dataset$cholesterol == "undefined")] <- median(dataset$cholesterol)
 dataset$cholesterol <- as.integer(dataset$cholesterol)
 
 
-# Ho cambiato il tipo di dato per la colonna fbs 
+# Ho trasformato il tipo di dato per la colonna fbs 
 # da int a factor quindi diviso in più livelli (1 - 0)
 dataset$fbs <- as.factor(dataset$fbs)
 
 
-# Ho cambiato il tipo di dato per la colonna rest_ecg 
+# Ho trasformato il tipo di dato per la colonna rest_ecg 
 # da int a factor quindi diviso in più livelli (0 - 1 - 2)
 dataset$rest_ecg <- as.factor(dataset$rest_ecg)
 
 
-# Ho cambiato il tipo di dato per la colonna exercise_angina 
+# Ho trasformato il tipo di dato per la colonna exercise_angina 
 # da int a factor quindi diviso in più livelli (1 - 0)
 dataset$exercise_angina <- as.factor(dataset$exercise_angina)
 
 
-# Ho cambiato il tipo di dato per la colonna slope 
+# Ho trasformato il tipo di dato per la colonna slope 
 # da num a factor quindi diviso in più livelli (0 - 1 - 2)
 dataset$slope <- as.factor(dataset$slope)
 
 
-# Ho cambiato il tipo di dato per la colonna thalassemia 
+# Ho trasformato il tipo di dato per la colonna thalassemia 
 # da int a factor quindi diviso in più livelli (0 - 1 - 2 - 3)
 dataset$thalassemia <- as.factor(dataset$thalassemia)
 
 
-# Ho cambiato il tipo di dato per la colonna heart_disease 
+# Ho trasformato il tipo di dato per la colonna heart_disease 
 # da int a factor quindi diviso in più livelli (1 - 0)
 dataset$heart_disease <- as.factor(dataset$heart_disease)
 
-
+'
 str(dataset)
 
 
@@ -269,7 +289,7 @@ boxplot(rest_bp_IQR, col = "green")
 
 # 3.Trasformare i dati in modo che siano consistenti. Sono necessarie altre
 # trasformazioni? Se si, quali?
-View(dataset)
+#View(dataset)
 summary(dataset$age)
 
 
@@ -291,7 +311,7 @@ dataset$rest_bp[dataset$rest_bp < 70 | dataset$rest_bp > 150] <- mean(dataset$re
 
 
 summary(dataset$rest_bp)
-View(dataset)
+#View(dataset)
 
 #   4.Visualizzare, prima e dopo le trasformazioni, i grafici ritenuti piÃ¹ opportuni.
 #    5. analisi descrittiva con i grafici
@@ -350,7 +370,9 @@ reg0 <- lm(max_hr ~ age, data = dataset)
 # per disegnare la retta di regressione lineare
 abline (reg0, col = "red")
 
-
+plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
+  geom_point() +
+  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
 # per visualizzare i residui
 # x di partenza, y di partenza
 # x di arrivo, y di arrivo
@@ -413,89 +435,38 @@ qqline(reg0$residuals)
 
 
 
-dat <- read.csv("C:/Users/BinodComini/Desktop/esame/heart_in_r/osservazioni.csv", header = TRUE, stringsAsFactors = FALSE)
+dat <- read.csv("osservazioni.csv", header = TRUE, stringsAsFactors = FALSE)
 str (dat)
-View(dat)
+#View(dat)
 
 
+predict(reg0, dat, interval = "confidence")
+'
+         fit       lwr      upr
+1  113.17265 102.98835 123.3569
+2  128.09188 121.78282 134.4009
+3  120.13495 111.78158 128.4883
+4  172.84956 166.03791 179.6612
+5  137.04341 132.88143 141.2054
+6  157.93033 154.59214 161.2685
+7  103.22649  90.39313 116.0599
+8  155.94110 152.95103 158.9312
+9   99.24803  85.34842 113.1476
+10  92.28572  76.51432 108.0571
+11 160.91418 156.97083 164.8575
+12 117.15111 108.01637 126.2858
+13 163.89803 159.28514 168.5109
+14 116.15649 106.76010 125.5529
+15  88.30726  71.46370 105.1508
+16 129.08649 123.02691 135.1461
+17 174.83880 167.51780 182.1598
+18 135.05418 130.44011 139.6683
+19 153.95187 151.24537 156.6584
+20 123.11880 115.54012 130.6975
+'
 
-
-
-df_pred <- data.frame("age" = dat$age) 
-df_pred
-predict(reg0, df_pred) 
-
-predict(reg0, df_pred, interval = "confidence")
-
-#       fit       lwr      upr
-# 1  113.17265 102.98835 123.3569
-# 2  128.09188 121.78282 134.4009
-# 3  120.13495 111.78158 128.4883
-# 4  172.84956 166.03791 179.6612
-# 5  137.04341 132.88143 141.2054
-# 6  157.93033 154.59214 161.2685
-# 7  103.22649  90.39313 116.0599
-# 8  155.94110 152.95103 158.9312
-# 9   99.24803  85.34842 113.1476
-# 10  92.28572  76.51432 108.0571
-# 11 160.91418 156.97083 164.8575
-# 12 117.15111 108.01637 126.2858
-# 13 163.89803 159.28514 168.5109
-# 14 116.15649 106.76010 125.5529
-# 15  88.30726  71.46370 105.1508
-# 16 129.08649 123.02691 135.1461
-# 17 174.83880 167.51780 182.1598
-# 18 135.05418 130.44011 139.6683
-# 19 153.95187 151.24537 156.6584
-# 20 123.11880 115.54012 130.6975
-
-# le nostre previsioni di max hr in base all'età non sono precise al 100% ma rientrano nel range della predizione 
-# perchè abbiamo generato dati casuali
-
-
-
-
-
-
-# predict(reg0, dat)
-# # 1         2         3         4         5         6         7         8         9        10        11        12        13 
-# # 113.17265 128.09188 120.13495 172.84956 137.04341 157.93033 103.22649 155.94110  99.24803  92.28572 160.91418 117.15111 163.89803 
-# # 14        15        16        17        18        19        20 
-# # 116.15649  88.30726 129.08649 174.83880 135.05418 153.95187 123.11880 
-# 
-# 
-# 
-# 
-# predict(reg0, dat, interval = "confidence")
-# 
-# '
-#          fit       lwr      upr
-# 1  113.17265 102.98835 123.3569
-# 2  128.09188 121.78282 134.4009
-# 3  120.13495 111.78158 128.4883
-# 4  172.84956 166.03791 179.6612
-# 5  137.04341 132.88143 141.2054
-# 6  157.93033 154.59214 161.2685
-# 7  103.22649  90.39313 116.0599
-# 8  155.94110 152.95103 158.9312
-# 9   99.24803  85.34842 113.1476
-# 10  92.28572  76.51432 108.0571
-# 11 160.91418 156.97083 164.8575
-# 12 117.15111 108.01637 126.2858
-# 13 163.89803 159.28514 168.5109
-# 14 116.15649 106.76010 125.5529
-# 15  88.30726  71.46370 105.1508
-# 16 129.08649 123.02691 135.1461
-# 17 174.83880 167.51780 182.1598
-# 18 135.05418 130.44011 139.6683
-# 19 153.95187 151.24537 156.6584
-# 20 123.11880 115.54012 130.6975
-# '
-
-
-
-
-
+df_pred <- data.frame("age" = dat$age)
+predict(reg0, df_pred)
 
 
 
@@ -532,7 +503,7 @@ fit_knn
 ## MLP
 fit_mlp <- train(age ~ ., data = dataset, method = "mlp")
 fit_mlp
-
+ 
 # Multi-Layer Perceptron 
 # 
 # 297 samples
