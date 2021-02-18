@@ -49,8 +49,10 @@ dataset <- na.omit(dataset)
 # Rimuovere le colonne ritenute non necessarie.
 # Elimino la colonna X perchè da me ritenuta inutile
 
-dataset <- subset(dataset, select = - x)
 
+View(dataset)
+dataset <- subset(dataset, select = - x)
+View(dataset)
 
 
 
@@ -59,8 +61,9 @@ dataset <- subset(dataset, select = - x)
 # testuale, il tipo di ogni attributo (nominale, ordinale, di intervallo o di rapporto).
 
 
-# Stampo inizialmente il mio dataset per controllare se vanno rinominate
-# le colonne in modo appropriato
+# Stampo inizialmente il mio dataset per controllare se ci sono colonne che vanno
+# rinominate in modo appropriato
+
 str(dataset)
 
 
@@ -103,50 +106,50 @@ names(dataset)[names(dataset) == "restecg"] <- "rest_ecg"
 # leggibile 
 
 # Ho trasformato, nella colonna sex, i semplici valori "0" e "1"  in 
-# "F" per femmina e in "M" per maschio e poi creato un fattore 
+# "F" per femmina e in "M" per maschio e poi ho creato un fattore 
 dataset$sex[(dataset$sex == "0")] <- "F"
 dataset$sex[(dataset$sex == "1")] <- "M" 
 dataset$sex <- as.factor(dataset$sex)
 
  
-# Ho trasformato il tipo di dato per la colonna chest pain 
+# Ho cambiato il tipo di dato per la colonna chest pain 
 # da int a factor quindi diviso in più livelli (0 - 1 - 2 - 3)
 dataset$chest_pain <- as.factor(dataset$chest_pain)
 
 
-# Per la colonna cholesterol ho trasformato in un primo luogo tutti i valori
+# Per la colonna cholesterol ho trasformato in primo luogo tutti i valori
 # "undefined" nella mediana dei valori di tutta la mia colonna
 # e in secondo luogo ho traformato il tipo di dato da char a integer
 dataset$cholesterol[(dataset$cholesterol == "undefined")] <- median(dataset$cholesterol)
 dataset$cholesterol <- as.integer(dataset$cholesterol)
 
 
-# Ho trasformato il tipo di dato per la colonna fbs 
+# Ho cambiato il tipo di dato per la colonna fbs 
 # da int a factor quindi diviso in più livelli (1 - 0)
 dataset$fbs <- as.factor(dataset$fbs)
 
 
-# Ho trasformato il tipo di dato per la colonna rest_ecg 
+# Ho cambiato il tipo di dato per la colonna rest_ecg 
 # da int a factor quindi diviso in più livelli (0 - 1 - 2)
 dataset$rest_ecg <- as.factor(dataset$rest_ecg)
 
 
-# Ho trasformato il tipo di dato per la colonna exercise_angina 
+# Ho cambiato il tipo di dato per la colonna exercise_angina 
 # da int a factor quindi diviso in più livelli (1 - 0)
 dataset$exercise_angina <- as.factor(dataset$exercise_angina)
 
 
-# Ho trasformato il tipo di dato per la colonna slope 
+# Ho cambiato il tipo di dato per la colonna slope 
 # da num a factor quindi diviso in più livelli (0 - 1 - 2)
 dataset$slope <- as.factor(dataset$slope)
 
 
-# Ho trasformato il tipo di dato per la colonna thalassemia 
+# Ho cambiato il tipo di dato per la colonna thalassemia 
 # da int a factor quindi diviso in più livelli (0 - 1 - 2 - 3)
 dataset$thalassemia <- as.factor(dataset$thalassemia)
 
 
-# Ho trasformato il tipo di dato per la colonna heart_disease 
+# Ho cambiato il tipo di dato per la colonna heart_disease 
 # da int a factor quindi diviso in più livelli (1 - 0)
 dataset$heart_disease <- as.factor(dataset$heart_disease)
 
