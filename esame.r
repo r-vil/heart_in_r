@@ -198,7 +198,7 @@ levels(dataset$rest_ecg)[levels(dataset$rest_ecg)== 1 ] <- "Normal"
 levels(dataset$rest_ecg)[levels(dataset$rest_ecg)== 2 ] <- "Anomaly"
 
 
-# levels for exer angina
+# levels for exercise_angina
 levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 0 ] <- "No"
 levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 1 ] <- "Yes"
 
@@ -226,7 +226,7 @@ str(dataset)
 
 
 
-# etÃ : l'etÃ  della persona in anni
+# età: l'età della persona in anni
 # sesso: il sesso della persona (1 = maschio, 0 = femmina)
 # cp: tipo di dolore toracico - Valore 0: asintomatico - Valore 1: angina atipica - Valore 2: dolore non anginoso - Valore 3: angina tipica
 # trestbps: la pressione sanguigna a riposo della persona (mm Hg al momento del ricovero in ospedale)
@@ -250,6 +250,7 @@ str(dataset)
 
 hist(dataset$max_hr, col = "red")
 dataset$max_hr[dataset$max_hr > 222] <- mean(dataset$max_hr)
+
 hist(dataset$max_hr,  col= "green")
 
 
@@ -284,7 +285,7 @@ hist(rest_bp_IQR, col = "green")
 boxplot(rest_bp_IQR, col = "green")
 
 
-
+str(dataset)
 
 
 # 3.Trasformare i dati in modo che siano consistenti. Sono necessarie altre
@@ -309,19 +310,23 @@ summary(dataset$rest_bp)
 
 dataset$rest_bp[dataset$rest_bp < 70 | dataset$rest_bp > 150] <- mean(dataset$rest_bp)
 
-
 summary(dataset$rest_bp)
-#View(dataset)
+-----------manca grafico------------
 
-#   4.Visualizzare, prima e dopo le trasformazioni, i grafici ritenuti piÃ¹ opportuni.
-#    5. analisi descrittiva con i grafici
+View(dataset)
 
 
-# 1. Analizzare la relazione tra due variabili del dataset attraverso la regressione lineare semplice e determinare: 
-# â?¢ il grafico del modello; 
-# â?¢ il coefficiente angolare e lâ??intercetta (interpretabile) della retta di regressione; 
-# â?¢ il tipo di relazione tramite re la bontÃ  del modello tramite R!; 
-# â?¢ lâ??analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
+
+#   4.Visualizzare, prima e dopo le trasformazioni, i grafici ritenuti più opportuni.
+
+
+
+# 6. Analizzare la relazione tra due variabili del dataset attraverso la regressione lineare 
+# semplice e determinare: 
+# - il grafico del modello; 
+# - il coefficiente angolare e l'intercetta (interpretabile) della retta di regressione; 
+# - il tipo di relazione tramite re la bontà del modello tramite R^2; 
+# - l'analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
 
 summary(dataset$age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -333,7 +338,7 @@ summary(dataset$rest_bp)
 
 
 # regressione lineare tra rest_bp e age
-# importante l'unitÃ  di misura!!!
+# importante l'unità di misura!!!
 plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
 
 # invertire l'ordine!
@@ -342,13 +347,14 @@ reg <- lm(dataset$rest_bp ~ dataset$age)
 # per disegnare la retta di regressione lineare
 abline (reg, col = "red")
 
-# reg0 --> abbiamo visto che tra age e rest_bp non c'Ã¨ correlazione
+# reg0 --> abbiamo visto che tra age e rest_bp non c'è correlazione
 # Call:
 #   lm(formula = dataset$rest_bp ~ dataset$age)
 # 
 # Coefficients:
 #   (Intercept)  dataset$age  
 # 114.3157       0.2495  
+
 
 
 summary(dataset$age)
@@ -370,6 +376,8 @@ reg0 <- lm(max_hr ~ age, data = dataset)
 # per disegnare la retta di regressione lineare
 abline (reg0, col = "red")
 
+----------MANCA COMMENTO----------------
+  
 plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
   geom_point() +
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
@@ -431,7 +439,8 @@ qqnorm(reg0$residuals)
 qqline(reg0$residuals)
 
 
-# 2. Creare un data frame contenente 10 osservazioni (non presenti nel dataset) ed effettuare delle previsioni.
+# 2. Creare un data frame contenente 10 osservazioni (non presenti nel dataset) 
+# ed effettuare delle previsioni.
 
 
 
@@ -475,7 +484,8 @@ install.packages("caret")
 #install.packages("caret", dependencies = c("Depends", "Suggests"))
 library(caret)
 
-# 1. Applicare un modello di Machine Learning a scelta, misurandone l'accuratezza sul test set.
+# 1. Applicare un modello di Machine Learning a scelta, misurandone 
+# l'accuratezza sul test set.
 
 
 # kNN
