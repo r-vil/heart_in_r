@@ -1,10 +1,15 @@
 # COMINI VILLANUEVA
 # ESAME R
 
-install.packages("tidyverse")
+# install.packages("tidyverse")
 library(tidyverse)
-install.packages("caret")
+# install.packages("caret")
 library(caret)
+install.packages("hrbrthemes")
+library(hrbrthemes)
+install.packages("viridis")
+library(viridis)
+
 
 '1.Caricare il datasetheart.csve analizzarne dettagliatamente la struttura. 
 2.Trasformare i dati in modo che siano tecnicamente corretti. 
@@ -114,6 +119,7 @@ dataset <- dataset %>%
 
 dataset <- dataset %>% 
   mutate(
+    age <- as.integer(age),
     sex = ifelse(sex == "1", "M", "F"),
     sex = as.factor(sex),
     chest_pain = as.factor(chest_pain),
@@ -123,7 +129,7 @@ dataset <- dataset %>%
     rest_ecg = as.factor(rest_ecg),
     exercise_angina = as.factor(exercise_angina),
     slope = as.factor(slope),
-    thalassemia = as.factor(thalassemia),
+    thalessemia = as.factor(thalessemia),
     heart_disease = as.factor(heart_disease)
     )
 ' 
@@ -178,8 +184,40 @@ str(dataset)
 
 
 # 4.Rinominare i livelli dei fattori in maniera appropriata, se necessario.
+tmp <- recode_factor(dataset$chest_pain, "0" = "asymptomatic", "1" = "nontypical_angina", "2" = "nonangial_pain", "3" = "typical_angina")
+tmp2 <- dataset %>%
+  mutate(
+    chest_pain =      recode_factor(chest_pain, 
+                                  "0" = "asymptomatic", 
+                                  "1" = "nontypical_angina", 
+                                  "2" = "nonangial_pain", 
+                                  "3" = "typical_angina"),
+    fbs =             recode_factor(fbs,
+                                  "0" = "False",
+                                  "1" = "True"),
+    rest_ecg =        recode_factor(rest_ecg,
+                                  "0" = "Ventricular_hypertrophy",
+                                  "1" = "Normal",
+                                  "2" = "Anomaly"),
+    exercise_angina = recode_factor(exercise_angina,
+                                  "0" = "False",
+                                  "1" = "True"),
+    slope =           recode_factor(slope,
+                                  "0" = "Descending",
+                                  "1" = "Flat",
+                                  "2" = "Ascending"),
+    thalessemia =     recode_factor(thalessemia,
+                                  "0" = "non_existent",
+                                  "1" = "defect_corrected",
+                                  "2" = "normal_blood",
+                                  "3" = "reversible_defect"),
+    heart_disease =   recode_factor(heart_disease,
+                                  "0" = "Yes",
+                                  "1" = "No")
+    
+    )
 
-
+'
 # levels for chest pain
 levels(dataset$chest_pain)[levels(dataset$chest_pain)== 0 ] <- "asymptomatic"
 levels(dataset$chest_pain)[levels(dataset$chest_pain)== 1 ] <- "nontypical_angina"
@@ -198,7 +236,7 @@ levels(dataset$rest_ecg)[levels(dataset$rest_ecg)== 1 ] <- "Normal"
 levels(dataset$rest_ecg)[levels(dataset$rest_ecg)== 2 ] <- "Anomaly"
 
 
-# levels for exercise_angina
+# levels for exer angina
 levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 0 ] <- "No"
 levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 1 ] <- "Yes"
 
@@ -210,6 +248,7 @@ levels(dataset$slope)[levels(dataset$slope)== 2 ] <- "Ascending"
 
 
 # levels for thalessimia
+
 levels(dataset$thalassemia)[levels(dataset$thalassemia)== 0 ] <- "non_existent"
 levels(dataset$thalassemia)[levels(dataset$thalassemia)== 1 ] <- "defect_corrected"
 levels(dataset$thalassemia)[levels(dataset$thalassemia)== 2 ] <- "normal_blood"
@@ -219,14 +258,14 @@ levels(dataset$thalassemia)[levels(dataset$thalassemia)== 3 ] <- "reversible_def
 # levels for heart disease
 levels(dataset$heart_disease)[levels(dataset$heart_disease)==0] <- "Yes"
 levels(dataset$heart_disease)[levels(dataset$heart_disease)==1] <- "No"
-
+'
 
 str(dataset)
 # 5.Descrivere brevemente gli attributi.
 
 
 
-# età: l'età della persona in anni
+# etÃ : l'etÃ  della persona in anni
 # sesso: il sesso della persona (1 = maschio, 0 = femmina)
 # cp: tipo di dolore toracico - Valore 0: asintomatico - Valore 1: angina atipica - Valore 2: dolore non anginoso - Valore 3: angina tipica
 # trestbps: la pressione sanguigna a riposo della persona (mm Hg al momento del ricovero in ospedale)
@@ -250,7 +289,6 @@ str(dataset)
 
 hist(dataset$max_hr, col = "red")
 dataset$max_hr[dataset$max_hr > 222] <- mean(dataset$max_hr)
-
 hist(dataset$max_hr,  col= "green")
 
 
@@ -263,7 +301,21 @@ hist(dataset$max_hr,  col= "green")
 
 
 
-boxplot(dataset$rest_bp, col = c("red"))
+# boxplot(dataset$rest_bp, col = c("red"))
+
+dataset %>%
+  ggplot(aes(x="rest_bp", y = rest_bp)) +
+  geom_boxplot() +
+  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_jitter(color="dark red", size=1, alpha=0.7) +
+  theme_ipsum() +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Boxplot of Rest BP") +
+  xlab("")
+
 hist(dataset$rest_bp, col = "red")
 Q3 <- quantile(dataset$rest_bp, 0.75)
 Q1 <- quantile(dataset$rest_bp, 0.25)
@@ -280,12 +332,36 @@ right<- (Q3+(1.5*IQR))
 rest_bp_IQR <- dataset$rest_bp[dataset$rest_bp > left & dataset$rest_bp < right]
 
 
+data.frame(rest_bp_IQR) %>%
+  ggplot(aes(x="rest_bp", y = rest_bp_IQR)) +
+  geom_boxplot() +
+  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_jitter(color="dark green", size=1, alpha=0.7) +
+  theme_ipsum() +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Boxplot of Rest BP IQR") +
+  xlab("")
 
 hist(rest_bp_IQR, col = "green")
-boxplot(rest_bp_IQR, col = "green")
+# boxplot(rest_bp_IQR, col = "green")
+# Plot
 
 
-str(dataset)
+
+
+
+# ggplot(dataset, aes(x="rest_bp", y = rest_bp)) + 
+#   geom_boxplot() + 
+#   xlab("cyl")
+
+
+
+
+
+
 
 
 # 3.Trasformare i dati in modo che siano consistenti. Sono necessarie altre
@@ -294,7 +370,6 @@ str(dataset)
 summary(dataset$age)
 
 
-dataset$age <- as.integer(dataset$age)
 dataset$age[dataset$age < 0 | dataset$age > 120] <- mean(dataset$age)
 
 
@@ -310,23 +385,19 @@ summary(dataset$rest_bp)
 
 dataset$rest_bp[dataset$rest_bp < 70 | dataset$rest_bp > 150] <- mean(dataset$rest_bp)
 
+
 summary(dataset$rest_bp)
------------manca grafico------------
+#View(dataset)
 
-View(dataset)
-
-
-
-#   4.Visualizzare, prima e dopo le trasformazioni, i grafici ritenuti più opportuni.
+#   4.Visualizzare, prima e dopo le trasformazioni, i grafici ritenuti piÃ¹ opportuni.
+#    5. analisi descrittiva con i grafici
 
 
-
-# 6. Analizzare la relazione tra due variabili del dataset attraverso la regressione lineare 
-# semplice e determinare: 
-# - il grafico del modello; 
-# - il coefficiente angolare e l'intercetta (interpretabile) della retta di regressione; 
-# - il tipo di relazione tramite re la bontà del modello tramite R^2; 
-# - l'analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
+# 1. Analizzare la relazione tra due variabili del dataset attraverso la regressione lineare semplice e determinare: 
+# â?¢ il grafico del modello; 
+# â?¢ il coefficiente angolare e lâ??intercetta (interpretabile) della retta di regressione; 
+# â?¢ il tipo di relazione tramite re la bontÃ  del modello tramite R!; 
+# â?¢ lâ??analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
 
 summary(dataset$age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -338,7 +409,7 @@ summary(dataset$rest_bp)
 
 
 # regressione lineare tra rest_bp e age
-# importante l'unità di misura!!!
+# importante l'unitÃ  di misura!!!
 plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
 
 # invertire l'ordine!
@@ -347,14 +418,13 @@ reg <- lm(dataset$rest_bp ~ dataset$age)
 # per disegnare la retta di regressione lineare
 abline (reg, col = "red")
 
-# reg0 --> abbiamo visto che tra age e rest_bp non c'è correlazione
+# reg0 --> abbiamo visto che tra age e rest_bp non c'Ã¨ correlazione
 # Call:
 #   lm(formula = dataset$rest_bp ~ dataset$age)
 # 
 # Coefficients:
 #   (Intercept)  dataset$age  
 # 114.3157       0.2495  
-
 
 
 summary(dataset$age)
@@ -370,17 +440,54 @@ summary(dataset$max_hr)
 # importante l'unitÃ  di misura!!!
 plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
+
+# giusto
+plot(dataset$sex, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
+
+
+# _______________________________________________________________________________________________________________
+dataset$cholesterol[dataset$cholesterol > 400] <- mean(dataset$cholesterol)
+
+#non fattori: age, rest_bp, chol, max_hr, oldpeak
+
+plot(dataset$age, dataset$rest_bp, xlab = "age (year)")
+
+# maybe
+plot(dataset$age, dataset$cholesterol, xlab = "age (year)")
+
+# maybe
+plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
+
+plot(dataset$age, dataset$oldpeak, xlab = "age (year)")
+
+
+
+plot(dataset$rest_bp, dataset$cholesterol, xlab = "age (year)")
+
+plot(dataset$rest_bp, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
+
+plot(dataset$rest_bp, dataset$oldpeak, xlab = "age (year)")
+
+#maybe
+plot(dataset$cholesterol, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
+
+plot(dataset$cholesterol, dataset$oldpeak, xlab = "age (year)")
+
+
+plot(dataset$max_hr, dataset$oldpeak, xlab = "age (year)")
+
+
+
 # invertire l'ordine!
 reg0 <- lm(max_hr ~ age, data = dataset)
 
 # per disegnare la retta di regressione lineare
 abline (reg0, col = "red")
 
-----------MANCA COMMENTO----------------
-  
 plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
   geom_point() +
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
+plot
 # per visualizzare i residui
 # x di partenza, y di partenza
 # x di arrivo, y di arrivo
@@ -439,8 +546,7 @@ qqnorm(reg0$residuals)
 qqline(reg0$residuals)
 
 
-# 2. Creare un data frame contenente 10 osservazioni (non presenti nel dataset) 
-# ed effettuare delle previsioni.
+# 2. Creare un data frame contenente 10 osservazioni (non presenti nel dataset) ed effettuare delle previsioni.
 
 
 
@@ -484,8 +590,7 @@ install.packages("caret")
 #install.packages("caret", dependencies = c("Depends", "Suggests"))
 library(caret)
 
-# 1. Applicare un modello di Machine Learning a scelta, misurandone 
-# l'accuratezza sul test set.
+# 1. Applicare un modello di Machine Learning a scelta, misurandone l'accuratezza sul test set.
 
 
 # kNN
