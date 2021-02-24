@@ -67,7 +67,7 @@ dataset <- na.omit(dataset)
 # Rimuovere le colonne ritenute non necessarie.
 # Elimino la colonna X perchè da me ritenuta inutile
 
-# ---- FUNZIONE SENZA PACCHETTO .....------
+# ---- FUNZIONE SENZA LIBRERIA TIDYVERSE ------
 # dataset <- subset(dataset, select = - x)
 
 # es 3
@@ -99,7 +99,7 @@ dataset <- dataset %>%
 
 str(dataset)
 
-# ---- FUNZIONE SENZA PACCHETTO .....------
+# ---- FUNZIONE SENZA TIDYVERSE------
 # names(dataset)[names(dataset) == "cp"] <- "chest_pain"
 # names(dataset)[names(dataset) == "trestbps"] <- "rest_bp"
 # names(dataset)[names(dataset) == "chol"] <- "cholesterol"
@@ -147,7 +147,6 @@ dataset <- dataset %>%
     rest_ecg = as.factor(rest_ecg),
     exercise_angina = as.factor(exercise_angina),
     slope = as.factor(slope),
-    thalassemia = as.factor(thalassemia),
     thalessemia = as.factor(thalessemia),
     heart_disease = as.factor(heart_disease)
     
@@ -155,7 +154,7 @@ dataset <- dataset %>%
 
 str(dataset)
 
-# ---- FUNZIONI SENZA PACCHETTO .....------ 
+# ---- FUNZIONI SENZA TIDYVERSE------ 
 
 # Abbiamo trasformato, nella colonna sex, i semplici valori "0" e "1"  in 
 # "F" per femmina e in "M" per maschio e poi creato un fattore.
@@ -199,12 +198,12 @@ str(dataset)
 
 
 
-
 # es 4
 # Rinominare i livelli dei fattori in maniera appropriata, se necessario.
 
 tmp <- recode_factor(dataset$chest_pain, "0" = "asymptomatic", "1" = "nontypical_angina", "2" = "nonangial_pain", "3" = "typical_angina")
 tmp2 <- dataset %>%
+  
   mutate(
     chest_pain =      recode_factor(chest_pain, 
                                   "0" = "asymptomatic", 
@@ -233,16 +232,18 @@ tmp2 <- dataset %>%
     heart_disease =   recode_factor(heart_disease,
                                   "0" = "Yes",
                                   "1" = "No")
+  )
 
-    )
 
 view(dataset)
 
-# ---- FUNZIONI SENZA PACCHETTO .....------ 
 
+
+#  ---- FUNZIONI SENZA TIDYVERSE------ 
+# 
 # levels for chest pain
 # levels(dataset$chest_pain)[levels(dataset$chest_pain)== 0 ] <- "asymptomatic"
-# levels(dataset$chest_pain)[levels(dataset$chest_pain)== 1 ] <- "nontypical_angina"
+# evels(dataset$chest_pain)[levels(dataset$chest_pain)== 1 ] <- "nontypical_angina"
 # levels(dataset$chest_pain)[levels(dataset$chest_pain)== 2 ] <- "nonanginal_pain"
 # levels(dataset$chest_pain)[levels(dataset$chest_pain)== 3 ] <- "typical_angina"
 
@@ -255,7 +256,11 @@ view(dataset)
 # levels(dataset$rest_ecg)[levels(dataset$rest_ecg)== 1 ] <- "Normal"
 # levels(dataset$rest_ecg)[levels(dataset$rest_ecg)== 2 ] <- "Anomaly"
 
-# levels for exercise_angina
+# levels for exer angina
+# levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 0 ] <- "No"
+# levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 1 ] <- "Yes"
+
+# lvels for exercise_angina
 # levels for exer angina
 # levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 0 ] <- "No"
 # levels(dataset$exercise_angina)[levels(dataset$exercise_angina)== 1 ] <- "Yes"
@@ -264,6 +269,7 @@ view(dataset)
 # levels(dataset$slope)[levels(dataset$slope)== 0 ] <- "Descending"
 # levels(dataset$slope)[levels(dataset$slope)== 1 ] <- "Flat"
 # levels(dataset$slope)[levels(dataset$slope)== 2 ] <- "Ascending"
+ 
 
 # levels for thalessimia
 # levels(dataset$thalassemia)[levels(dataset$thalassemia)== 0 ] <- "non_existent"
@@ -276,10 +282,9 @@ view(dataset)
 # levels(dataset$heart_disease)[levels(dataset$heart_disease)==1] <- "No"
 
 
-
-
 # es 5
 # -------- Descrivere brevemente gli attributi. --------
+
 
 # età: l'età della persona in anni
 
@@ -340,8 +345,11 @@ hist(dataset$max_hr,  col= "green")
 # 1.5xIQR Rule. Individuare e rimuovere tali valori.
 
 
-boxplot(dataset$rest_bp, col = c("red"))
+
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
+# histogramma
 # boxplot(dataset$rest_bp, col = c("red"))
+
 
 dataset %>%
   ggplot(aes(x="rest_bp", y = rest_bp)) +
@@ -365,6 +373,12 @@ right<- (Q3+(1.5*IQR))
 rest_bp_IQR <- dataset$rest_bp[dataset$rest_bp > left & dataset$rest_bp < right]
 
 
+
+
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
+# hist(rest_bp_IQR, col = "green")
+# boxplot(rest_bp_IQR, col = "green")
+
 data.frame(rest_bp_IQR) %>%
   ggplot(aes(x="rest_bp", y = rest_bp_IQR)) +
   geom_boxplot() +
@@ -378,19 +392,6 @@ data.frame(rest_bp_IQR) %>%
   ggtitle("Boxplot of Rest BP IQR") +
   xlab("")
 
-hist(rest_bp_IQR, col = "green")
-boxplot(rest_bp_IQR, col = "green")
-
-# boxplot(rest_bp_IQR, col = "green")
-# Plot
-
-
-# ggplot(dataset, aes(x="rest_bp", y = rest_bp)) + 
-#   geom_boxplot() + 
-#   xlab("cyl")
-
-
-str(dataset)
 
 
 # es 3.1
@@ -405,7 +406,6 @@ summary(dataset$age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # -10.00   47.00   55.00   53.91   61.00   77.00 
 
-dataset$age <- as.integer(dataset$age)
 dataset$age[dataset$age < 0 | dataset$age > 120] <- mean(dataset$age)
 
 summary(dataset$age)
@@ -425,10 +425,8 @@ summary(dataset$rest_bp)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 94.0   120.0   130.0   127.9   138.0   150.0 
 
-
-# -----------manca grafico------------
   
-  View(dataset)
+View(dataset)
 
 
 
@@ -438,7 +436,6 @@ summary(dataset$rest_bp)
 # Ricordarsi di condurre un'analisi descrittiva con i grafici
 
 
-
 # es 6
 # Analizzare la relazione tra due variabili del dataset attraverso la regressione lineare 
 # semplice e determinare: 
@@ -446,6 +443,7 @@ summary(dataset$rest_bp)
 # - il coefficiente angolare e l'intercetta (interpretabile) della retta di regressione; 
 # - il tipo di relazione tramite re la bontà del modello tramite R^2; 
 # - l'analisi dei residui e la distribuzione in quantili, con i relativi grafici. 
+
 
 summary(dataset$age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -461,6 +459,7 @@ summary(dataset$rest_bp)
 # Funzione generica significa che si adatta a diversi tipi di oggetti, 
 # dalle variabili alle tabelle agli output di funzioni complesse, producendo risultati diversi.
 
+
 plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
 
 # Ricordarsi di invertire l'ordine!
@@ -470,7 +469,7 @@ reg <- lm(dataset$rest_bp ~ dataset$age)
 # a = intercetta, e b = coefficiente angolare.
 abline (reg, col = "red")
 
-# reg0 --> abbiamo visto che tra age e rest_bp non c'è correlazione
+# reg0 --> abbiamo visto che tra age e rest_bp non c'Ã¨ correlazione
 # Call:
 #   lm(formula = dataset$rest_bp ~ dataset$age)
 # 
@@ -480,6 +479,7 @@ abline (reg, col = "red")
 
 
 # Abbiamo preso altre due variabili per poter continuare la regressione lineare
+
 
 summary(dataset$age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -491,55 +491,67 @@ summary(dataset$max_hr)
 
 # Regressione lineare tra max_hr e age
 # Importante l'unità  di misura!!!
+
 plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
 
-# giusto
-plot(dataset$sex, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
-
-# _______________________________________________________________________________________________________________
+# da portare sulle modifiche
 dataset$cholesterol[dataset$cholesterol > 400] <- mean(dataset$cholesterol)
 
 #non fattori: age, rest_bp, chol, max_hr, oldpeak
 
+# ----Abbiamo provato ??
+# sembra che ci sia correlazione 
 plot(dataset$age, dataset$rest_bp, xlab = "age (year)")
 
-# maybe
+# sembra che ci sia correlazione 
 plot(dataset$age, dataset$cholesterol, xlab = "age (year)")
 
-# maybe
-plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
 plot(dataset$age, dataset$oldpeak, xlab = "age (year)")
 
+# sembra che ci sia correlazione 
 plot(dataset$rest_bp, dataset$cholesterol, xlab = "age (year)")
 
 plot(dataset$rest_bp, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
 plot(dataset$rest_bp, dataset$oldpeak, xlab = "age (year)")
 
-#maybe
+# sembra che ci sia correlazione
 plot(dataset$cholesterol, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
 
 plot(dataset$cholesterol, dataset$oldpeak, xlab = "age (year)")
 
+
+# sembra che ci sia correlazione
 plot(dataset$max_hr, dataset$oldpeak, xlab = "age (year)")
 
 
-# Invertire l'ordine!
+
+
+# invertire l'ordine!
+
 reg0 <- lm(max_hr ~ age, data = dataset)
 
 abline (reg0, col = "red")
 
-# ----------MANCA COMMENTO----------------
+
+# Grafico regressione lineare con Ggplot
   
 plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
 geom_point() +
 geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
 plot
 
+
 # Per visualizzare i residui
+plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
+  geom_point() +
+  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
+# per visualizzare il plot
+plot
+
 
 segments(dataset$age, fitted(reg0), dataset$age, dataset$max_hr, col = "blue", lty = 2)
 title(main = "Regr.lin tra max_hr e age")
@@ -587,6 +599,7 @@ qqnorm(reg0$residuals)
 qqline(reg0$residuals)
 
 
+
 # es 2.4
 # Creare un data frame contenente 10 osservazioni (non presenti nel dataset) 
 # ed effettuare delle previsioni.
@@ -595,28 +608,6 @@ dat <- read.csv("C:/Users/BinodComini/Desktop/esame/heart_in_r/osservazioni.csv"
 str (dat)
 View(dat)
 
-# predict(reg0, dat, interval = "confidence")
-#          fit       lwr      upr
-# 1  113.17265 102.98835 123.3569
-# 2  128.09188 121.78282 134.4009
-# 3  120.13495 111.78158 128.4883
-# 4  172.84956 166.03791 179.6612
-# 5  137.04341 132.88143 141.2054
-# 6  157.93033 154.59214 161.2685
-# 7  103.22649  90.39313 116.0599
-# 8  155.94110 152.95103 158.9312
-# 9   99.24803  85.34842 113.1476
-# 10  92.28572  76.51432 108.0571
-# 11 160.91418 156.97083 164.8575
-# 12 117.15111 108.01637 126.2858
-# 13 163.89803 159.28514 168.5109
-# 14 116.15649 106.76010 125.5529
-# 15  88.30726  71.46370 105.1508
-# 16 129.08649 123.02691 135.1461
-# 17 174.83880 167.51780 182.1598
-# 18 135.05418 130.44011 139.6683
-# 19 153.95187 151.24537 156.6584
-# 20 123.11880 115.54012 130.6975
 
 # Predizione per l'attributo età attravareso reg0
 
@@ -626,6 +617,7 @@ predict(reg0, df_pred)
 # 113.17265 128.09188 120.13495 172.84956 137.04341 157.93033 103.22649 155.94110  99.24803  92.28572 160.91418 
 # 12        13        14        15        16        17        18        19        20 
 # 117.15111 163.89803 116.15649  88.30726 129.08649 174.83880 135.05418 153.95187 123.11880 
+
 
 
 # es 1.5 
