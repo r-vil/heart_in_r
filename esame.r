@@ -31,23 +31,27 @@ semplice e determinare:
 2.5 --> Descrivere brevemente il funzionamento del modello scelto (eseguito sulla descrizione).
 '
 
-install.packages("tidyverse")
+# install.packages("tidyverse")
 library(tidyverse)
 
-install.packages("caret")
+# install.packages("caret")
 library(caret)
 
-install.packages("hrbrthemes")
-library(hrbrthemes)
+# install.packages("ggthemes")
+library(ggthemes)
 
-install.packages("viridis")
-library(viridis)
+
+# install.packages("hrbrthemes")
+# library(hrbrthemes)
+# 
+# install.packages("viridis")
+# library(viridis)
 
 
 # es 1
 # Caricare il dataset heart.csv e analizzarne dettagliatamente la struttura.
 
-dataset <- read.csv("C:/Users/BinodComini/Desktop/esame/heart_in_r/heart.csv", header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
+dataset <- read.csv("heart.csv", header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 dataset
 
 View(dataset)
@@ -202,7 +206,7 @@ str(dataset)
 # Rinominare i livelli dei fattori in maniera appropriata, se necessario.
 
 tmp <- recode_factor(dataset$chest_pain, "0" = "asymptomatic", "1" = "nontypical_angina", "2" = "nonangial_pain", "3" = "typical_angina")
-tmp2 <- dataset %>%
+dataset <- dataset %>%
   
   mutate(
     chest_pain =      recode_factor(chest_pain, 
@@ -334,9 +338,44 @@ view(dataset)
 # maggiori di 222 con il valore medio della variabile.
 # La funzione generica hist calcola un istogramma dei valori di dati forniti.
 
-hist(dataset$max_hr, col = "red")
+
+
+
+hist_ggplot <- function(dataset, x, f, title, x_title){
+  output <- dataset %>% 
+    ggplot(aes(x, fill = f )) +
+    geom_histogram() +
+    labs(title = title,
+         x = x_title,
+         fill = "")+
+    theme_fivethirtyeight()+
+    theme(axis.title = element_text())
+  
+  
+  
+  return(output)
+  
+}
+
+boxplot_ggplot <- function(dataset, y, f, title, y_title) {
+  output <-dataset %>%
+    ggplot(aes(x=f, y = y, fill = f)) +
+    geom_boxplot() +
+    labs(title = title,
+         y = y_title,
+         fill = "")+
+    stat_boxplot(geom = "errorbar", width = 0.2)
+  theme_fivethirtyeight()+
+    theme(axis.title = element_text())
+  
+  return(output)
+  
+}
+
+# hist(dataset$max_hr, col = "red")
+hist_ggplot(dataset, dataset$max_hr, NULL, "Istogramma del massimo battito cardiato", "max heart-rate(BPS)")
 dataset$max_hr[dataset$max_hr > 222] <- mean(dataset$max_hr)
-hist(dataset$max_hr,  col= "green")
+hist_ggplot(dataset, dataset$max_hr, NULL, "Istogramma del massimo battito cardiato", "max heart-rate(BPS)")
 
 
 # es 2.3
@@ -351,26 +390,16 @@ hist(dataset$max_hr,  col= "green")
 # boxplot(dataset$rest_bp, col = c("red"))
 
 
-dataset %>%
-  ggplot(aes(x="rest_bp", y = rest_bp)) +
-  geom_boxplot() +
-  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
-  geom_jitter(color="dark red", size=1, alpha=0.7) +
-  theme_ipsum() +
-  theme(
-    legend.position="none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Boxplot of Rest BP") +
-  xlab("")
 
-hist(dataset$rest_bp, col = "red")
+hist_ggplot(dataset, dataset$rest_bp ,dataset$sex ,"histogramma massimo del battito cardiaco a riposo diviso per il sesso", "heart-rate on rest (BPS)")
+boxplot_ggplot(dataset, dataset$rest_bp ,dataset$sex ,"boxplot del massimo battito cardiaco a riposo diviso per il sesso", "heart-rateon rest (BPS)")
+# hist(dataset$rest_bp, col = "red")
 Q3 <- quantile(dataset$rest_bp, 0.75)
 Q1 <- quantile(dataset$rest_bp, 0.25)
 IQR<-(Q3-Q1)
 left<- (Q1-(1.5*IQR))
 right<- (Q3+(1.5*IQR))
-rest_bp_IQR <- dataset$rest_bp[dataset$rest_bp > left & dataset$rest_bp < right]
+rest_bp_IQR <- data.frame(rest_bp = dataset$rest_bp[dataset$rest_bp > left & dataset$rest_bp < right], sex = dataset$sex[dataset$rest_bp > left & dataset$rest_bp < right])
 
 
 
@@ -378,20 +407,8 @@ rest_bp_IQR <- dataset$rest_bp[dataset$rest_bp > left & dataset$rest_bp < right]
 #  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # hist(rest_bp_IQR, col = "green")
 # boxplot(rest_bp_IQR, col = "green")
-
-data.frame(rest_bp_IQR) %>%
-  ggplot(aes(x="rest_bp", y = rest_bp_IQR)) +
-  geom_boxplot() +
-  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
-  geom_jitter(color="dark green", size=1, alpha=0.7) +
-  theme_ipsum() +
-  theme(
-    legend.position="none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Boxplot of Rest BP IQR") +
-  xlab("")
-
+hist_ggplot(rest_bp_IQR, rest_bp_IQR$rest_bp, rest_bp_IQR$sex, "histogramma massimo del battito cardiaco a riposo diviso per il sesso", "max heart-rate (BPM)")
+boxplot_ggplot(rest_bp_IQR, rest_bp_IQR$rest_bp ,rest_bp_IQR$sex, "boxplot del massimo battito cardiaco a riposo diviso per il sesso", "max heart-rate (BPM)")
 
 
 # es 3.1
@@ -421,12 +438,24 @@ summary(dataset$rest_bp)
 
 dataset$rest_bp[dataset$rest_bp < 70 | dataset$rest_bp > 150] <- mean(dataset$rest_bp)
 
+
 summary(dataset$rest_bp)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 94.0   120.0   130.0   127.9   138.0   150.0 
 
-  
-View(dataset)
+
+# Abbiamo impostato un filtro sui dati della colonna cholesterol
+
+summary(dataset$cholesterol)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 126.0   211.0   243.0   246.7   275.0   564.0 
+
+
+dataset$cholesterol[dataset$cholesterol > 400] <- mean(dataset$cholesterol)
+
+summary(dataset$cholesterol)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 126     211     243     244     273     394 
 
 
 
@@ -459,8 +488,18 @@ summary(dataset$rest_bp)
 # Funzione generica significa che si adatta a diversi tipi di oggetti, 
 # dalle variabili alle tabelle agli output di funzioni complesse, producendo risultati diversi.
 
+# senza tidyverse e ggplot
+# plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
 
-plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
+dataset %>% 
+  ggplot(aes(x = age, y = rest_bp)) +
+  geom_point()+
+  labs(title = "Scatterplot tra battiti cardiaci a riposo e età",
+       y = "heart-rate in rest(mm/Hg)",
+       x = "age (y)")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(), plot.background = element_rect(fill = "#f75e25")) 
+
 
 # Ricordarsi di invertire l'ordine!
 reg <- lm(dataset$rest_bp ~ dataset$age)
@@ -492,40 +531,20 @@ summary(dataset$max_hr)
 # Regressione lineare tra max_hr e age
 # Importante l'unità  di misura!!!
 
-plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
+
+# plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
+dataset %>% 
+  ggplot(aes(x = age, y = rest_bp)) +
+  geom_point()+
+  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+  labs(title = "Scatterplot tra battiti cardiaci a riposo e età",
+       y = "heart-rate in rest(mm/Hg)",
+       x = "age (y)")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(), plot.background = element_rect(fill = "#f75e25")) 
 
 
 
-# da portare sulle modifiche
-dataset$cholesterol[dataset$cholesterol > 400] <- mean(dataset$cholesterol)
-
-#non fattori: age, rest_bp, chol, max_hr, oldpeak
-
-# ----Abbiamo provato ??
-# sembra che ci sia correlazione 
-plot(dataset$age, dataset$rest_bp, xlab = "age (year)")
-
-# sembra che ci sia correlazione 
-plot(dataset$age, dataset$cholesterol, xlab = "age (year)")
-
-
-plot(dataset$age, dataset$oldpeak, xlab = "age (year)")
-
-# sembra che ci sia correlazione 
-plot(dataset$rest_bp, dataset$cholesterol, xlab = "age (year)")
-
-plot(dataset$rest_bp, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
-
-plot(dataset$rest_bp, dataset$oldpeak, xlab = "age (year)")
-
-# sembra che ci sia correlazione
-plot(dataset$cholesterol, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
-
-plot(dataset$cholesterol, dataset$oldpeak, xlab = "age (year)")
-
-
-# sembra che ci sia correlazione
-plot(dataset$max_hr, dataset$oldpeak, xlab = "age (year)")
 
 
 
@@ -534,27 +553,27 @@ plot(dataset$max_hr, dataset$oldpeak, xlab = "age (year)")
 
 reg0 <- lm(max_hr ~ age, data = dataset)
 
-abline (reg0, col = "red")
+# senza tidyverse e ggplot
+# abline (reg0, col = "red")
 
 
 # Grafico regressione lineare con Ggplot
   
-plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
-geom_point() +
-geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
-plot
-
-
-# Per visualizzare i residui
-plot <- ggplot(dataset, aes(x=age, y=max_hr)) +
+dataset %>% ggplot(aes(x=age, y=max_hr)) +
   geom_point() +
-  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)
-# per visualizzare il plot
-plot
+  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+  labs(title = "Regressione linare tra il massimo battito cardiaco a riposo e l'età",
+       x = "age (y)",
+       y = "max heart-rate (BPM)")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(), plot.background = element_rect(fill = "#66ff00")) 
 
 
-segments(dataset$age, fitted(reg0), dataset$age, dataset$max_hr, col = "blue", lty = 2)
-title(main = "Regr.lin tra max_hr e age")
+
+
+# senza tidyverse e ggplot
+# segments(dataset$age, fitted(reg0), dataset$age, dataset$max_hr, col = "blue", lty = 2)
+# title(main = "Regr.lin tra max_hr e age")
 summary(reg0)
 
 # Call:
@@ -569,8 +588,7 @@ summary(reg0)
 # (Intercept) 203.6911     7.6023  26.793  < 2e-16 ***
 #   dataset$age  -0.9949     0.1377  -7.226 4.27e-12 ***
 #   ---
-#   Signif. codes:  0 â??***â?? 0.001 â??**â?? 0.01 â??*â?? 0.05 â??.â?? 0.1 â?? â?? 1
-# 
+# Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 # Residual standard error: 21.16 on 295 degrees of freedom
 # Multiple R-squared:  0.1504,	Adjusted R-squared:  0.1475 
 # F-statistic: 52.21 on 1 and 295 DF,  p-value: 4.275e-12
@@ -578,20 +596,32 @@ summary(reg0)
 # calcolo il coefficiente di correlazione lineare
 r0 <- cor(dataset$max_hr, dataset$age)
 r0
-# [1] -0.3877871
+# potrebbe variare
+# -0.3876143
 
-# R^2 = 0.1503788 coefficiente di determinazione
+# R^2 = 0.1502449 coefficiente di determinazione
 rq0 <- r0^2
 rq0
-# [1] 0.1503788
+# 0.1502449
 
 r0 <- cov(dataset$max_hr, dataset$age) / (sd(dataset$max_hr) * sd(dataset$age))
 r0
 r0^2
 
 # Analisi dei residui
-plot(reg0$fitted, reg0$residuals, main = "Residui")
-abline(0,0)
+# plot(reg0$fitted, reg0$residuals, main = "Residui")
+# abline(0,0)
+reg0 %>% ggplot(aes(x = reg0$fitted, y = reg0$residuals)) +
+  geom_point()+ 
+  geom_hline(yintercept = 0) +
+  labs(title = "Analisi dei residui", 
+       x = "regression fitted",
+       y = "regression residuals")+
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(), plot.background = element_rect(fill = "white")) 
+
+
+  
 
 # Distribuzione in quantili confrontabile con
 # quella di una normale
@@ -600,11 +630,35 @@ qqline(reg0$residuals)
 
 
 
+
+# Abbiamo provato a mettere a relazioni altre colonne del dataset
+# e abbiamo notato che ci sono correlazioni oltre quella da noi analizzata
+
+# sembra che ci sia correlazione 
+plot(dataset$age, dataset$cholesterol, xlab = "age (year)", ylab = "cholesterol (mg/dl)", main = "Scatterplot tra anni e colesterolo")
+
+
+
+
+# sembra che ci sia correlazione 
+plot(dataset$rest_bp, dataset$max_hr, xlab = "rest bp (mm/Hg)", ylab= "max_hr (Bpm)",  main = "Scatterplot tra rest bp e max hr")
+
+# sembra che ci sia correlazione
+plot(dataset$cholesterol, dataset$max_hr, xlab = "cholesterol (mg/dl)", ylab= "max_hr (Bpm)",  main = "Scatterplot tra colesterolo e max hr")
+
+plot(dataset$cholesterol, dataset$oldpeak, xlab = "cholesterol (mm/Hg)",  main = "Scatterplot tra colesterolo e old peak")
+
+
+# sembra che ci sia correlazione
+plot(dataset$max_hr, dataset$oldpeak,xlab = "max hr(bpm)", xlab = "old peak",  main = "Scatterplot tra max hr e old peak")
+
+
+
 # es 2.4
 # Creare un data frame contenente 10 osservazioni (non presenti nel dataset) 
 # ed effettuare delle previsioni.
 
-dat <- read.csv("C:/Users/BinodComini/Desktop/esame/heart_in_r/osservazioni.csv", header = TRUE, stringsAsFactors = FALSE)
+dat <- read.csv("osservazioni.csv", header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 str (dat)
 View(dat)
 
@@ -624,78 +678,112 @@ predict(reg0, df_pred)
 # Applicare un modello di Machine Learning a scelta, misurandone 
 # l'accuratezza sul test set.
 
-# kNN
+# Il seed è un numero casuale per far andare in modo consistente i modelli di machine learning
+seed = set.seed(2021)
 
-fit_knn <- train(age ~ ., data = dataset, method = "knn")
+control <- trainControl(method = "cv", number = 10, seed = seed)
+
+
+# kNN
+fit_knn <- train(age ~ ., data = dataset, method = "knn", trControl = control)
 fit_knn
 
 # k-Nearest Neighbors 
 # 
 # 297 samples
-# 13 predictor
+# 14 predictor
 # 
 # No pre-processing
-# Resampling: Bootstrapped (25 reps) 
-# Summary of sample sizes: 297, 297, 297, 297, 297, 297, ... 
+# Resampling: Cross-Validated (10 fold) 
+# Summary of sample sizes: 267, 267, 268, 267, 268, 267, ... 
 # Resampling results across tuning parameters:
 #   
-#   k  RMSE      Rsquared    MAE     
-# 5  9.367058  0.06795630  7.453586
-# 7  8.997625  0.08339619  7.224015
-# 9  8.816922  0.09077965  7.102163
+#   k  RMSE      Rsquared   MAE     
+# 5  5.104316  0.7183579  4.064807
+# 7  5.355917  0.6923200  4.202551
+# 9  5.544080  0.6751923  4.321310
 # 
 # RMSE was used to select the optimal model using the smallest value.
-# The final value used for the model was k = 9.
+# The final value used for the model was k = 5.
 
 
 ## MLP
-fit_mlp <- train(age ~ ., data = dataset, method = "mlp")
+fit_mlp <- train(age ~ ., data = dataset, method = "mlp", trControl = control)
 fit_mlp
 
 # Multi-Layer Perceptron 
 # 
 # 297 samples
-# 13 predictor
+# 14 predictor
 # 
 # No pre-processing
-# Resampling: Bootstrapped (25 reps) 
-# Summary of sample sizes: 297, 297, 297, 297, 297, 297, ... 
+# Resampling: Cross-Validated (10 fold) 
+# Summary of sample sizes: 268, 267, 267, 267, 267, 267, ... 
 # Resampling results across tuning parameters:
 #   
-#   size  RMSE      Rsquared     MAE      
-# 1     23.94262  0.004616473  22.595610
-# 3     11.74443  0.013065360   9.948754
-# 5     11.97872  0.010286422  10.163292
+#   size  RMSE      Rsquared    MAE      
+# 1     18.49229  0.01782076  16.909140
+# 3     10.40671         NaN   8.580055
+# 5     11.87053  0.03447440   9.962101
 # 
 # RMSE was used to select the optimal model using the smallest value.
 # The final value used for the model was size = 3.
 
-results <- resamples(list( knn = fit_knn, mlp = fit_mlp))
+# RF
+fit_rf <- train(age ~ ., data = dataset, method = "rf", trControl = control)
+fit_rf
+
+# Random Forest 
+# 
+# 297 samples
+# 14 predictor
+# 
+# No pre-processing
+# Resampling: Cross-Validated (10 fold) 
+# Summary of sample sizes: 267, 267, 268, 267, 267, 267, ... 
+# Resampling results across tuning parameters:
+#   
+#   mtry  RMSE       Rsquared   MAE      
+# 2    5.3067604  0.7894700  3.9510994
+# 11    1.5597166  0.9688907  0.7587672
+# 20    0.5005757  0.9955183  0.1507403
+# 
+# RMSE was used to select the optimal model using the smallest value.
+# The final value used for the model was mtry = 20.
+
+
+
+results <- resamples(list( knn = fit_knn, mlp = fit_mlp, rf = fit_rf))
 summary(results)
 
 # Call:
 #   summary.resamples(object = results)
 # 
-# Models: knn, mlp 
-# Number of resamples: 25 
+# Models: knn, mlp, rf 
+# Number of resamples: 10 
 # 
 # MAE 
-# Min.  1st Qu.   Median     Mean  3rd Qu.      Max. NA's
-# knn 6.491155 6.744449 7.224933 7.102163 7.444848  7.817221    0
-# mlp 6.944955 7.374180 7.989258 9.948754 8.416975 55.356995    0
+# Min.    1st Qu.    Median      Mean   3rd Qu.       Max. NA's
+# knn 3.04000000 3.82166667 4.2066667 4.0648072 4.3650644  4.5866667    0
+# mlp 6.85196279 6.96845265 7.4404801 8.5800551 8.5834975 17.2310911    0
+# rf  0.03735112 0.07204457 0.1167621 0.1507403 0.1674122  0.3828455    0
 # 
 # RMSE 
-#         Min.  1st Qu.   Median      Mean   3rd Qu.      Max. NA's
-# knn 8.065696 8.434172 8.698588  8.816922  9.201315  9.568582    0
-# mlp 8.553515 9.099595 9.712400 11.744430 10.367556 56.111010    0
+#           Min.   1st Qu.    Median       Mean    3rd Qu.      Max. NA's
+# knn 3.97559220 4.6341279 5.2464467  5.1043156  5.6575846  5.742101    0
+# mlp 8.26718581 8.4863063 9.6195265 10.4067052 10.4981054 19.041418    0
+# rf  0.05771655 0.1706759 0.3428455  0.5005757  0.6794707  1.262975    0
 # 
 # Rsquared 
-# Min.     1st Qu.     Median       Mean    3rd Qu.       Max. NA's
-# knn 0.005982459 0.048187056 0.08090164 0.09077965 0.11792553 0.22110454    0
-# mlp 0.002614607 0.009349402 0.01608420 0.01306536 0.01829074 0.02049728   22
+# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
+# knn 0.6069089 0.6388037 0.7133936 0.7183579 0.7913478 0.8608696    0
+# mlp        NA        NA        NA       NaN        NA        NA   10
+# rf  0.9816208 0.9943202 0.9985328 0.9955183 0.9996551 0.9999658    0
+# 
+
 
 # Grafico del risultato delle due metodologie di machine learning
-dotplot(results)
+dotplot(results, main = "Risultati dei modelli di machine learning")
 
 
 # es 2.5
