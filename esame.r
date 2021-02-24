@@ -31,21 +31,14 @@ semplice e determinare:
 2.5 --> Descrivere brevemente il funzionamento del modello scelto (eseguito sulla descrizione).
 '
 
-# install.packages("tidyverse")
+ #install.packages("tidyverse")
 library(tidyverse)
 
-# install.packages("caret")
+ #install.packages("caret")
 library(caret)
 
-# install.packages("ggthemes")
+ #install.packages("ggthemes")
 library(ggthemes)
-
-
-# install.packages("hrbrthemes")
-# library(hrbrthemes)
-# 
-# install.packages("viridis")
-# library(viridis)
 
 
 # es 1
@@ -373,6 +366,7 @@ boxplot_ggplot <- function(dataset, y, f, title, y_title) {
 }
 
 # hist(dataset$max_hr, col = "red")
+
 hist_ggplot(dataset, dataset$max_hr, NULL, "Istogramma del massimo battito cardiato", "max heart-rate(BPS)")
 dataset$max_hr[dataset$max_hr > 222] <- mean(dataset$max_hr)
 hist_ggplot(dataset, dataset$max_hr, NULL, "Istogramma del massimo battito cardiato", "max heart-rate(BPS)")
@@ -386,14 +380,14 @@ hist_ggplot(dataset, dataset$max_hr, NULL, "Istogramma del massimo battito cardi
 
 
 #  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
-# histogramma
+# # hist(dataset$rest_bp, col = "red")
 # boxplot(dataset$rest_bp, col = c("red"))
 
 
 
 hist_ggplot(dataset, dataset$rest_bp ,dataset$sex ,"histogramma massimo del battito cardiaco a riposo diviso per il sesso", "heart-rate on rest (BPS)")
 boxplot_ggplot(dataset, dataset$rest_bp ,dataset$sex ,"boxplot del massimo battito cardiaco a riposo diviso per il sesso", "heart-rateon rest (BPS)")
-# hist(dataset$rest_bp, col = "red")
+
 Q3 <- quantile(dataset$rest_bp, 0.75)
 Q1 <- quantile(dataset$rest_bp, 0.25)
 IQR<-(Q3-Q1)
@@ -407,6 +401,7 @@ rest_bp_IQR <- data.frame(rest_bp = dataset$rest_bp[dataset$rest_bp > left & dat
 #  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # hist(rest_bp_IQR, col = "green")
 # boxplot(rest_bp_IQR, col = "green")
+
 hist_ggplot(rest_bp_IQR, rest_bp_IQR$rest_bp, rest_bp_IQR$sex, "histogramma massimo del battito cardiaco a riposo diviso per il sesso", "max heart-rate (BPM)")
 boxplot_ggplot(rest_bp_IQR, rest_bp_IQR$rest_bp ,rest_bp_IQR$sex, "boxplot del massimo battito cardiaco a riposo diviso per il sesso", "max heart-rate (BPM)")
 
@@ -488,27 +483,28 @@ summary(dataset$rest_bp)
 # Funzione generica significa che si adatta a diversi tipi di oggetti, 
 # dalle variabili alle tabelle agli output di funzioni complesse, producendo risultati diversi.
 
-# senza tidyverse e ggplot
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # plot(dataset$age, dataset$rest_bp, xlab = "age (year)", ylab= "rest_bp (mm/Hg)")
+
 
 dataset %>% 
   ggplot(aes(x = age, y = rest_bp)) +
   geom_point()+
+  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   labs(title = "Scatterplot tra battiti cardiaci a riposo e età",
        y = "heart-rate in rest(mm/Hg)",
        x = "age (y)")+
   theme_fivethirtyeight()+
   theme(axis.title = element_text(), plot.background = element_rect(fill = "#f75e25")) 
 
-
 # Ricordarsi di invertire l'ordine!
 reg <- lm(dataset$rest_bp ~ dataset$age)
 
 # La funzione abline() disegna una retta di regressione attraverso i suoi parametri:
 # a = intercetta, e b = coefficiente angolare.
-abline (reg, col = "red")
+# abline (reg, col = "red")
 
-# reg0 --> abbiamo visto che tra age e rest_bp non c'Ã¨ correlazione
+# reg0 --> abbiamo visto che tra age e rest_bp non c'è correlazione
 # Call:
 #   lm(formula = dataset$rest_bp ~ dataset$age)
 # 
@@ -531,29 +527,15 @@ summary(dataset$max_hr)
 # Regressione lineare tra max_hr e age
 # Importante l'unità  di misura!!!
 
-
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # plot(dataset$age, dataset$max_hr, xlab = "age (year)", ylab= "max_hr (Bpm)")
-dataset %>% 
-  ggplot(aes(x = age, y = rest_bp)) +
-  geom_point()+
-  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
-  labs(title = "Scatterplot tra battiti cardiaci a riposo e età",
-       y = "heart-rate in rest(mm/Hg)",
-       x = "age (y)")+
-  theme_fivethirtyeight()+
-  theme(axis.title = element_text(), plot.background = element_rect(fill = "#f75e25")) 
-
-
-
-
-
 
 
 # invertire l'ordine!
 
 reg0 <- lm(max_hr ~ age, data = dataset)
 
-# senza tidyverse e ggplot
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # abline (reg0, col = "red")
 
 
@@ -569,11 +551,10 @@ dataset %>% ggplot(aes(x=age, y=max_hr)) +
   theme(axis.title = element_text(), plot.background = element_rect(fill = "#66ff00")) 
 
 
-
-
-# senza tidyverse e ggplot
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # segments(dataset$age, fitted(reg0), dataset$age, dataset$max_hr, col = "blue", lty = 2)
 # title(main = "Regr.lin tra max_hr e age")
+
 summary(reg0)
 
 # Call:
@@ -609,8 +590,10 @@ r0
 r0^2
 
 # Analisi dei residui
+#  ---- FUNZIONI SENZA TIDYVERSE e GGPLOT------ 
 # plot(reg0$fitted, reg0$residuals, main = "Residui")
 # abline(0,0)
+
 reg0 %>% ggplot(aes(x = reg0$fitted, y = reg0$residuals)) +
   geom_point()+ 
   geom_hline(yintercept = 0) +
@@ -631,13 +614,11 @@ qqline(reg0$residuals)
 
 
 
-# Abbiamo provato a mettere a relazioni altre colonne del dataset
-# e abbiamo notato che ci sono correlazioni oltre quella da noi analizzata
+# Abbiamo provato a mettere in relazioni altre colonne del dataset
+# e abbiamo notato che ci sono correlazioni oltre a quella da noi analizzata
 
 # sembra che ci sia correlazione 
 plot(dataset$age, dataset$cholesterol, xlab = "age (year)", ylab = "cholesterol (mg/dl)", main = "Scatterplot tra anni e colesterolo")
-
-
 
 
 # sembra che ci sia correlazione 
